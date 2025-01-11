@@ -44,7 +44,7 @@ def extract_features(tr_sig_dloader, test_dl, model):
 
 
 def train_and_evaluate(tr_features, tr_labels, test_features, test_labels):
-    configs = ["svm","sgd","knn"]
+    configs = ["svm","sgd","knn","gaussian","xgb"]
     csv_output = []
     score_output = []
 
