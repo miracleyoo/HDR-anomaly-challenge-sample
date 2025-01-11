@@ -25,10 +25,15 @@ class TransformerClassifier(nn.Module):
         )
 
     def forward(self, x):
+        # 将输入 reshape 为 (B, L=1, D)
+        x = x.unsqueeze(1)  # 添加伪序列维度
         # 添加位置编码
         x = x + self.position_embedding
+        # print("Inside TransformerClassifier, x.shape (1):", x.shape)
         # Transformer Encoder
         x = self.transformer_encoder(x)
+        # print("Inside TransformerClassifier, x.shape (2):", x.shape)
         # 分类头（取特征的第一个时间步）
         logits = self.classifier(x[:, 0, :])  # 假设 CLIP 特征是 batch x 1 x dim 的形状
+        # print("Inside TransformerClassifier, logits.shape:", logits.shape)
         return logits

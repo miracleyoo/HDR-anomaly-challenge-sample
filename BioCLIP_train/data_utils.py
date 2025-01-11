@@ -60,7 +60,8 @@ def _filter(dataframe: pd.DataFrame, img_dir: str) -> pd.DataFrame:
     return dataframe.drop(bad_row_idxs)
 
 def load_data(data_path: str, img_dir: str, test_size: float = 0.2, random_state: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    df = _filter(pd.read_csv(data_path), img_dir)
+    # df = _filter(pd.read_csv(data_path), img_dir)
+    df = pd.read_csv(data_path)
     train_data, test_data = train_test_split(df, test_size=test_size, random_state=random_state)
     
     return train_data, test_data

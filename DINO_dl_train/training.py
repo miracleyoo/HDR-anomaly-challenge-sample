@@ -10,7 +10,8 @@ from dataset import ButterflyDataset, ClassifierDataset
 from data_utils import data_transforms, load_data
 from evaluation import evaluate, print_evaluation
 from model_utils import get_feats_and_meta, get_dino_model
-from classifier import train, get_scores
+# from classifier import train, get_scores
+from dl_trainer import train, validate, calc_metrics
 from types import SimpleNamespace
 
 # Configuration         
@@ -35,7 +36,6 @@ def setup_data_and_model():
     model = get_dino_model()
     return model.to(args.device), train_data, test_data
 
-
 def prepare_data_loaders(train_data, test_data):
     train_sig_dset = ButterflyDataset(train_data, args.img_dir, transforms=data_transforms())
     tr_sig_dloader = DataLoader(train_sig_dset, batch_size=args.batch_size, shuffle=False, num_workers=8)
@@ -44,6 +44,10 @@ def prepare_data_loaders(train_data, test_data):
     return tr_sig_dloader, test_dl
 
 def prepare_classifier_data_loaders(tr_features, tr_labels, test_features, test_labels):
+    print("tr_features.shape", tr_features.shape)
+    print("tr_labels.shape", tr_labels.shape)
+    print("test_features.shape", test_features.shape)
+    print("test_labels.shape", test_labels.shape)
     tr_cls_dataset = ClassifierDataset(tr_features, tr_labels)
     test_cls_dataset = ClassifierDataset(test_features, test_labels)
     tr_cls_dloader = DataLoader(tr_cls_dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
@@ -58,28 +62,29 @@ def extract_features(tr_sig_dloader, test_dl, model):
 
 
 def train_and_evaluate(tr_cls_dloader, test_cls_dloader, test_features, test_labels):
-    configs = ["svm","sgd","knn","gaussian","xgb"]
+    # configs = ["svm","sgd","knn","gaussian","xgb"]
     csv_output = []
     score_output = []
 
-    clf, acc, h_acc, nh_acc = train(tr_cls_dloader, test_cls_dloader, args)
+    model = train(tr_cls_dloader, args)
+    preds, labels = validate(model, test_cls_dloader, args)
+    accuracy, precision, recall, f1 = calc_metrics(preds, labels)
 
     # Save model to the specified path
-    model_filename = args.clf_save_dir / f"trained_{args.cls_model_name}_classifier.pkl"
-    with open(model_filename, 'wb') as model_file:
-        pickle.dump(clf, model_file)
+    model_filename = args.clf_save_dir / f"trained_{args.cls_model_name}_classifier.pth"
+    torch.save(model, model_filename)
+    
     print(f"Saved {args.cls_model_name} classifier to {model_filename}")
-    print(f"{args.cls_model_name}: Acc - {acc:.4f}, Hacc - {h_acc:.4f}, NHacc - {nh_acc:.4f}")
+    print(f"{args.cls_model_name}: Acc - {accuracy:.4f}, Hacc - {precision:.4f}, NHacc - {recall:.4f}")
     
     # Get scores for the test dataset
-    scores = get_scores(clf, test_features)
-    eval_scores = evaluate(scores, test_labels, reversed=False)
+    eval_scores = evaluate(preds, labels, reversed=False)
     print_evaluation(*eval_scores)
     csv_output.append([f"DiNO Features + {args.cls_model_name}"] + list(eval_scores))
     
     # Save individual scores for analysis
-    for idx, score in enumerate(scores):
-        score_output.append([idx, score, test_labels[idx]])
+    for idx, pred in enumerate(preds):
+        score_output.append([idx, pred, test_labels[idx]])
             
     return csv_output, score_output
 
