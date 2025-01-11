@@ -13,11 +13,11 @@ from model_utils import get_feats_and_meta
 from classifier import train, get_scores
 
 # Configuration         
-ROOT_DATA_DIR = Path("/path/to/your/project/data")
-DATA_FILE = ROOT_DATA_DIR / "ref" / "butterfly_anomaly_train.csv"
-IMG_DIR = ROOT_DATA_DIR / "images"
-CLF_SAVE_DIR = Path("/path/to/your/project/models/trained_clfs")
-DEVICE = "cuda:1"
+ROOT_DATA_DIR = Path("/tsukimi/datasets/butterfly_anomaly")
+DATA_FILE = ROOT_DATA_DIR / "butterfly_anomaly_train.csv"
+IMG_DIR = ROOT_DATA_DIR / "train_downsized_flat"
+CLF_SAVE_DIR = ROOT_DATA_DIR / "trained_clfs_BioCLIP"
+DEVICE = "cuda:0"
 BATCH_SIZE = 4
 
 def setup_data_and_model():
