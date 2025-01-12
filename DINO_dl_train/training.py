@@ -12,6 +12,7 @@ from dataset import ButterflyDataset, ClassifierDataset
 from data_utils import data_transforms, load_data
 from evaluation import evaluate, print_evaluation
 from model_utils import get_feats_and_meta, get_dino_model
+from torchvision import transforms
 # from classifier import train, get_scores
 from dl_trainer import train, validate, calc_metrics
 from types import SimpleNamespace
@@ -77,17 +78,12 @@ def prepare_data_loaders(train_data, test_data):
     return tr_sig_dloader, test_dl
 
 def prepare_classifier_data_loaders(tr_features, tr_labels, test_features, test_labels):
-    # print("tr_features.shape", tr_features.shape)
-    # print("tr_labels.shape", tr_labels.shape)
-    # print("test_features.shape", test_features.shape)
-    # print("test_labels.shape", test_labels.shape)
     tr_cls_dataset = ClassifierDataset(tr_features, tr_labels)
     test_cls_dataset = ClassifierDataset(test_features, test_labels)
     tr_cls_dloader = DataLoader(tr_cls_dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
     test_cls_dloader = DataLoader(test_cls_dataset, batch_size=args.batch_size, shuffle=False, num_workers=4)
     return tr_cls_dloader, test_cls_dloader
     
-
 def extract_features(tr_sig_dloader, test_dl, model):
     tr_features, tr_labels = get_feats_and_meta(tr_sig_dloader, model, args.device)
     test_features, test_labels = get_feats_and_meta(test_dl, model, args.device)

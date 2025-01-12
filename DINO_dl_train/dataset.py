@@ -2,6 +2,8 @@ from torch.utils.data import Dataset
 from PIL import Image
 import os
 import pandas as pd
+# Data augment
+
 
 class ButterflyDataset(Dataset):
     def __init__(self, data, root_dir, transforms=None):
@@ -14,6 +16,8 @@ class ButterflyDataset(Dataset):
         self.data["hybrid_stat"] = self.data["hybrid_stat"].str.strip().str.lower()  # Normalize the values
         if not set(self.data["hybrid_stat"].unique()).issubset(valid_classes):
             raise ValueError("Unexpected values found in 'hybrid_stat' column.")
+        
+        
 
         # Define classes explicitly to avoid relying on sorted order
         self.classes = ["non-hybrid", "hybrid"]
