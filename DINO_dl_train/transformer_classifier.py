@@ -5,17 +5,18 @@ from torch.utils.data import DataLoader, TensorDataset
 
 # 定义 Transformer Encoder 分类模型
 class TransformerClassifier(nn.Module):
-    def __init__(self, input_dim=1536, num_classes=2, num_heads=8, num_layers=2, hidden_dim=128):
+    def __init__(self, input_dim=1, num_classes=2, num_heads=8, num_layers=2, hidden_dim=32):
         super(TransformerClassifier, self).__init__()
         # 位置编码（可选）
-        self.position_embedding = nn.Parameter(torch.randn(1, 1, input_dim))  # 可学的位置编码
+        self.position_embedding = nn.Parameter(torch.randn(1, input_dim, 1))  # 可学的位置编码
         # Transformer Encoder
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=input_dim,
             nhead=num_heads,
             dim_feedforward=hidden_dim,
             activation='relu',
-            dropout=0.1
+            dropout=0.1,
+            batch_first=True
         )
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
         # 分类头

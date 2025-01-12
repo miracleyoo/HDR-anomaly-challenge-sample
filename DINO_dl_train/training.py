@@ -13,6 +13,7 @@ from model_utils import get_feats_and_meta, get_dino_model
 # from classifier import train, get_scores
 from dl_trainer import train, validate, calc_metrics
 from types import SimpleNamespace
+import yaml
 
 # Configuration         
 args = SimpleNamespace()
@@ -21,7 +22,7 @@ args.data_file = args.root_data_dir / "butterfly_anomaly_train.csv"
 args.img_dir = args.root_data_dir / "train_downsized_flat"
 args.device = "cuda:0"
 args.batch_size = 4
-args.input_dim = 1536
+args.input_dim = 1 #1536
 args.num_classes = 2
 args.num_epochs = 50
 args.lr = 1e-4
@@ -29,6 +30,10 @@ args.cls_model_name = "transformer"
 time_str = time.strftime("%Y%m%d-%H%M%S")
 args.clf_save_dir = args.root_data_dir / f"trained_clfs_{args.cls_model_name}_{time_str}"
 os.makedirs(args.clf_save_dir, exist_ok=True)
+# Save the configuration into a yaml file
+config_filename = args.clf_save_dir / "config.yaml"
+with open(config_filename, 'w') as config_file:
+    yaml.dump(vars(args), config_file, default_flow_style=False)
 
 
 def setup_data_and_model():
