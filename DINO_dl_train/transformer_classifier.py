@@ -5,17 +5,17 @@ from torch.utils.data import DataLoader, TensorDataset
 
 # 定义 Transformer Encoder 分类模型
 class TransformerClassifier(nn.Module):
-    def __init__(self, input_dim=1536, num_classes=2, num_heads=8, num_layers=2, hidden_dim=32):
+    def __init__(self, input_dim=1536, num_classes=2, num_heads=8, num_layers=2, hidden_dim=32, seq_len=4):
         super(TransformerClassifier, self).__init__()
         # Positional encoding
-        self.position_embedding = nn.Parameter(torch.randn(1, input_dim, 1))  # 可学的位置编码
+        self.position_embedding = nn.Parameter(torch.randn(1, seq_len, input_dim))
         
-        # Input embedding
-        self.in_linear = nn.Linear(1, hidden_dim)
+        # # Input embedding
+        # self.in_linear = nn.Linear(1, hidden_dim)
         
         # Transformer Encoder
         encoder_layer = nn.TransformerEncoderLayer(
-            d_model=hidden_dim,
+            d_model=input_dim,
             nhead=num_heads,
             dim_feedforward=hidden_dim,
             activation='relu',
@@ -25,20 +25,22 @@ class TransformerClassifier(nn.Module):
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
         # 分类头
         self.classifier = nn.Sequential(
-            nn.LayerNorm(input_dim*hidden_dim),
-            nn.Linear(input_dim*hidden_dim, input_dim),
+            nn.LayerNorm(seq_len*input_dim),
+            nn.Linear(seq_len*input_dim, hidden_dim),
             nn.ReLU(),
-            nn.Linear(input_dim, num_classes),
+            nn.Linear(hidden_dim, num_classes),
             # nn.Softmax(dim=-1)
         )
 
     def forward(self, x):
         # 将输入 reshape 为 (B, D, L=1)
-        x = x.unsqueeze(-1)  # 添加伪序列维度
+        # x = x.unsqueeze(-1)  # 添加伪序列维度
         # 添加位置编码
+        # print("Inside TransformerClassifier, x.shape (0):", x.shape)
+        # print("Inside TransformerClassifier, self.position_embedding.shape:", self.position_embedding.shape)
         x = x + self.position_embedding
         # Input embedding
-        x = self.in_linear(x)
+        # x = self.in_linear(x)
         
         
         # print("Inside TransformerClassifier, x.shape (1):", x.shape)

@@ -51,6 +51,7 @@ def train(train_loader, test_loader, args):
         for batch_features, batch_labels in train_loader:
             optimizer.zero_grad()
             batch_features, batch_labels = batch_features.to(args.device), batch_labels.to(args.device)
+            # print("batch_features.shape", batch_features.shape)
             outputs = model(batch_features)
 
             loss = criterion(outputs, batch_labels)

@@ -1,5 +1,6 @@
 import os
 import csv
+import argparse
 from pathlib import Path
 import time
 import torch
@@ -17,20 +18,51 @@ from types import SimpleNamespace
 import yaml
 
 # Configuration         
-args = SimpleNamespace()
-args.root_data_dir = Path("/tsukimi/datasets/butterfly_anomaly")
-args.data_file = args.root_data_dir / "butterfly_anomaly_train.csv"
-args.img_dir = args.root_data_dir / "train_downsized_flat"
-args.device = "cuda:0"
-args.batch_size = 4
-args.input_dim = 1536
-args.num_classes = 2
-args.hidden_dim = 512
-args.num_epochs = 50
-args.lr = 1e-4
-args.cls_model_name = "mlp" #"transformer"
-time_str = time.strftime("%Y%m%d-%H%M%S")
-args.clf_save_dir = args.root_data_dir / f"trained_clfs_{args.cls_model_name}_{time_str}"
+def parse_args():
+    parser = argparse.ArgumentParser(description="Butterfly Anomaly Training Configuration")
+
+    parser.add_argument("--root_data_dir", type=Path, default=Path("/tsukimi/datasets/butterfly_anomaly"), help="Root directory for dataset")
+    parser.add_argument("--data_file", type=Path, help="Path to the data CSV file")
+    parser.add_argument("--img_dir", type=Path, help="Directory for images")
+    parser.add_argument("--device", type=str, default="cuda:0", help="Device to use for training (e.g., 'cuda:0' or 'cpu')")
+    parser.add_argument("--batch_size", type=int, default=4, help="Batch size for training")
+    parser.add_argument("--input_dim", type=int, default=1536, help="Input dimension size")
+    parser.add_argument("--num_classes", type=int, default=2, help="Number of classes")
+    parser.add_argument("--hidden_dim", type=int, default=512, help="Hidden layer dimension size")
+    parser.add_argument("--num_epochs", type=int, default=50, help="Number of epochs for training")
+    parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate")
+    parser.add_argument("--cls_model_name", type=str, choices=["mlp", "transformer"], default="transformer", help="Classifier model name")
+    parser.add_argument("--clf_save_dir", type=Path, help="Directory to save trained classifiers")
+
+    args = parser.parse_args()
+
+    # Dynamically set derived arguments
+    time_str = time.strftime("%Y%m%d-%H%M%S")
+    if args.data_file is None:
+        args.data_file = args.root_data_dir / "butterfly_anomaly_train.csv"
+    if args.img_dir is None:
+        args.img_dir = args.root_data_dir / "train_downsized_flat"
+    if args.clf_save_dir is None:
+        args.clf_save_dir = args.root_data_dir / f"trained_clfs_{args.cls_model_name}_{time_str}"
+
+    return args
+
+# args = SimpleNamespace()
+# args.root_data_dir = Path("/tsukimi/datasets/butterfly_anomaly")
+# args.data_file = args.root_data_dir / "butterfly_anomaly_train.csv"
+# args.img_dir = args.root_data_dir / "train_downsized_flat"
+# args.device = "cuda:0"
+# args.batch_size = 4
+# args.input_dim = 1536
+# args.num_classes = 2
+# args.hidden_dim = 512
+# args.num_epochs = 50
+# args.lr = 1e-4
+# args.cls_model_name = "mlp" #"transformer"
+# time_str = time.strftime("%Y%m%d-%H%M%S")
+# args.clf_save_dir = args.root_data_dir / f"trained_clfs_{args.cls_model_name}_{time_str}"
+
+args = parse_args()
 os.makedirs(args.clf_save_dir, exist_ok=True)
 # Save the configuration into a yaml file
 config_filename = args.clf_save_dir / "config.yaml"
