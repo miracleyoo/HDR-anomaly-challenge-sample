@@ -10,9 +10,6 @@ class TransformerClassifier(nn.Module):
         # Positional encoding
         self.position_embedding = nn.Parameter(torch.randn(1, seq_len, input_dim))
         
-        # # Input embedding
-        # self.in_linear = nn.Linear(1, hidden_dim)
-        
         # Transformer Encoder
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=input_dim,
@@ -23,34 +20,27 @@ class TransformerClassifier(nn.Module):
             batch_first=True
         )
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
-        # 分类头
+        # Classifier Head
         self.classifier = nn.Sequential(
-            nn.LayerNorm(seq_len*input_dim),
-            nn.Linear(seq_len*input_dim, hidden_dim),
+            # Linear -> ReLU -> Linear
+            nn.Linear(seq_len*input_dim, hidden_dim*2),
             nn.ReLU(),
-            nn.Linear(hidden_dim, num_classes),
-            # nn.Softmax(dim=-1)
+            nn.Linear(hidden_dim*2,hidden_dim),# num_classes),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_dim, num_classes)
         )
 
     def forward(self, x):
-        # 将输入 reshape 为 (B, D, L=1)
-        # x = x.unsqueeze(-1)  # 添加伪序列维度
-        # 添加位置编码
-        # print("Inside TransformerClassifier, x.shape (0):", x.shape)
-        # print("Inside TransformerClassifier, self.position_embedding.shape:", self.position_embedding.shape)
+        # Add positional encoding
         x = x + self.position_embedding
-        # Input embedding
-        # x = self.in_linear(x)
-        
-        
-        # print("Inside TransformerClassifier, x.shape (1):", x.shape)
+
         # Transformer Encoder
         x = self.transformer_encoder(x)
-        # print("Inside TransformerClassifier, x.shape (2):", x.shape)
-        # 分类头（取特征的全部时间步拼合）
+        
+        # Classifier Head
         x = x.view(x.size(0), -1)
-        logits = self.classifier(x)  # 假设 CLIP 特征是 batch x 1 x dim 的形状
-        # print("Inside TransformerClassifier, logits.shape:", logits.shape)
+        logits = self.classifier(x)  
         return logits
     
 class MLPClassifier(nn.Module):

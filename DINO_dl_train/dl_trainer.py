@@ -27,8 +27,8 @@ def train(train_loader, test_loader, args):
     model.to(args.device)
 
     class_weights = torch.tensor([0.0457,1.0])  # 每类权重 (示例)
-    # criterion = nn.CrossEntropyLoss(weight=class_weights)
-    criterion = FocalLoss(alpha=0.25, gamma=2, reduction='mean')
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
+    # criterion = FocalLoss(alpha=0.25, gamma=2, reduction='mean')
     criterion.to(args.device)
 
     # 优化器和学习率调度器

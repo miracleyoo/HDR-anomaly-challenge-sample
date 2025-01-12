@@ -17,8 +17,6 @@ class ButterflyDataset(Dataset):
         if not set(self.data["hybrid_stat"].unique()).issubset(valid_classes):
             raise ValueError("Unexpected values found in 'hybrid_stat' column.")
         
-        
-
         # Define classes explicitly to avoid relying on sorted order
         self.classes = ["non-hybrid", "hybrid"]
         self.cls_lbl_map = {cls: i for i, cls in enumerate(self.classes)}
