@@ -81,11 +81,11 @@ def train(train_loader, test_loader, args):
         print(f"\tTrain: Acc - {train_accuracy:.4f}, Precision - {train_precision:.4f}, Recall - {train_recall:.4f}, F1 - {train_f1:.4f}")
         print(f"\tVal: Acc - {val_accuracy:.4f}, Precision - {val_precision:.4f}, Recall - {val_recall:.4f}, F1 - {val_f1:.4f}")
         print(f"\tVal Hybrid: Recall - {val_hybrid_recall:.4f}, Precision - {val_hybrid_precision:.4f}, F1 - {val_hybrid_f1:.4f}, ROC AUC - {val_hybrid_roc_auc:.4f}, Acc - {val_hybrid_acc:.4f}")
-        if val_hybrid_f1 > best_f1:
-            best_f1 = val_hybrid_f1
+        if val_f1 > best_f1:
+            best_f1 = val_f1
             best_model = deepcopy(model)
             torch.save(best_model, args.clf_save_dir / f"trained_classifier_epoch_{epoch+1}.pth")
-            print(f"Best model updated! Saved model at epoch {epoch+1} with val f1 {val_hybrid_f1:.4f}")
+            print(f"Best model updated! Saved model at epoch {epoch+1} with val f1 {val_f1:.4f}")
         
     return best_model
 
