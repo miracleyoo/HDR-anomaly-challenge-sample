@@ -4,6 +4,7 @@ from pathlib import Path
 import time
 import torch
 import pickle 
+import numpy as np
 from torch.utils.data import DataLoader
 
 from dataset import ButterflyDataset, ClassifierDataset
@@ -34,6 +35,12 @@ os.makedirs(args.clf_save_dir, exist_ok=True)
 config_filename = args.clf_save_dir / "config.yaml"
 with open(config_filename, 'w') as config_file:
     yaml.dump(vars(args), config_file, default_flow_style=False)
+
+# Make sure the experiment is reproducible
+torch.manual_seed(233)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+np.random.seed(233)
 
 
 def setup_data_and_model():
