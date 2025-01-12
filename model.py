@@ -65,9 +65,6 @@ class Model:
         self.preprocess_img = transforms.Compose([
         transforms.Resize((448, 448)),
         transforms.ToTensor(),
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomVerticalFlip(),
-        transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 
