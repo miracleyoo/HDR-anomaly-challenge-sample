@@ -75,10 +75,10 @@ def train_and_evaluate(tr_cls_dloader, val_cls_dloader, test_features, test_labe
     torch.save(model, model_filename)
     
     print(f"Saved {args.cls_model_name} classifier to {model_filename}")
-    print(f"{args.cls_model_name}: Acc - {accuracy:.4f}, Hacc - {precision:.4f}, NHacc - {recall:.4f}")
+    print(f"{args.cls_model_name}: Acc - {accuracy:.4f}, Hacc - {precision:.4f}, NHacc - {recall:.4f}, F1 - {f1:.4f}")
     
     # Get scores for the test dataset
-    eval_scores = evaluate(preds, labels, reversed=False)
+    eval_scores = evaluate(preds.numpy(), labels.numpy(), reversed=False)
     print_evaluation(*eval_scores)
     csv_output.append([f"DiNO Features + {args.cls_model_name}"] + list(eval_scores))
     

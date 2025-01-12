@@ -23,9 +23,9 @@ def train(train_loader, test_loader, args):
     criterion.to(args.device)
 
     # 优化器和学习率调度器
-    optimizer = optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
+    optimizer = optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4)
     # precision_calc = Precision(task="binary", average='macro')
-    best_precision = 0.0
+    best_f1 = 0.0
     best_model = None
 
     non_hybrid_weight = 1
@@ -33,7 +33,7 @@ def train(train_loader, test_loader, args):
     class_weights = {0: non_hybrid_weight, 1: hybrid_weight}
 
     # 训练循环
-    num_epochs = 10
+    num_epochs = 8
     for epoch in range(num_epochs):
         model.train()
         epoch_loss = 0.0
@@ -60,24 +60,25 @@ def train(train_loader, test_loader, args):
         
         # Calculate precision
         train_preds_all = torch.cat(train_preds_all)
-        print("train_preds_all.shape(before):", train_preds_all.shape)
+        # print("train_preds_all.shape(before):", train_preds_all.shape)
         train_preds_all = torch.argmax(train_preds_all, dim=-1)
         train_labels_all = torch.cat(train_labels_all)
         train_accuracy, train_precision, train_recall, train_f1 = calc_metrics(train_preds_all, train_labels_all)
-        print("train_preds_all.shape(after):", train_preds_all.shape)
-        print("train_labels_all.shape:", train_labels_all.shape)
+        # print("train_preds_all.shape(after):", train_preds_all.shape)
+        # print("train_labels_all.shape:", train_labels_all.shape)
         
         # Evaluate the model
         val_preds, val_labels = validate(model, test_loader, args)
-        print(val_preds)
-        print(val_labels)
+        # print(val_preds)
+        # print(val_labels)
         
         val_accuracy, val_precision, val_recall, val_f1 = calc_metrics(val_preds, val_labels)
         
-        if val_precision > best_precision:
-            best_precision = val_precision
+        if val_f1 > best_f1:
+            best_f1 = val_f1
             best_model = model
             torch.save(best_model, args.clf_save_dir / f"trained_{args.cls_model_name}_classifier_epoch_{epoch}.pth")
+            print(f"Best model updated! Saved model at epoch {epoch} with val f1 {val_f1:.4f}")
         
         print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {epoch_loss / len(train_loader):.4f}")
         print(f"\tTrain: Acc - {train_accuracy:.4f}, Precision - {train_precision:.4f}, Recall - {train_recall:.4f}, F1 - {train_f1:.4f}")
@@ -102,11 +103,11 @@ def validate(model, test_loader, args):
     # Concatenate all predictions and labels
     preds = torch.cat(all_predictions).cpu().detach()
     y_val = torch.cat(all_labels).cpu().detach()
-    print("preds_val.shape(before):", preds.shape)
-    print("y_val.shape:", y_val.shape)
+    # print("preds_val.shape(before):", preds.shape)
+    # print("y_val.shape:", y_val.shape)
     # Turn the binary labels into a numpy array (B,2) to (B,)
     preds = torch.argmax(preds, dim=-1)
-    print("preds_val.shape(after):", preds.shape)
+    # print("preds_val.shape(after):", preds.shape)
     return preds, y_val
 
 def calc_metrics(preds, y_val):
