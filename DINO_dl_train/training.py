@@ -47,21 +47,6 @@ def parse_args():
 
     return args
 
-# args = SimpleNamespace()
-# args.root_data_dir = Path("/tsukimi/datasets/butterfly_anomaly")
-# args.data_file = args.root_data_dir / "butterfly_anomaly_train.csv"
-# args.img_dir = args.root_data_dir / "train_downsized_flat"
-# args.device = "cuda:0"
-# args.batch_size = 4
-# args.input_dim = 1536
-# args.num_classes = 2
-# args.hidden_dim = 512
-# args.num_epochs = 50
-# args.lr = 1e-4
-# args.cls_model_name = "mlp" #"transformer"
-# time_str = time.strftime("%Y%m%d-%H%M%S")
-# args.clf_save_dir = args.root_data_dir / f"trained_clfs_{args.cls_model_name}_{time_str}"
-
 args = parse_args()
 os.makedirs(args.clf_save_dir, exist_ok=True)
 # Save the configuration into a yaml file
