@@ -24,8 +24,8 @@ def train(train_loader, test_loader, args):
     
     model.to(args.device)
 
-    class_weights = torch.tensor([1.0, 0.1])  # 每类权重 (示例)
-    criterion = nn.CrossEntropyLoss()#weight=class_weights)
+    class_weights = torch.tensor([1.0, 0.0457])  # 每类权重 (示例)
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
     criterion.to(args.device)
 
     # 优化器和学习率调度器
@@ -34,9 +34,9 @@ def train(train_loader, test_loader, args):
     best_f1 = 0.0
     best_model = deepcopy(model)
 
-    non_hybrid_weight = 1
-    hybrid_weight = 1
-    class_weights = {0: non_hybrid_weight, 1: hybrid_weight}
+    # non_hybrid_weight = 1
+    # hybrid_weight = 1
+    # class_weights = {0: non_hybrid_weight, 1: hybrid_weight}
 
     # 训练循环
     # num_epochs = 8

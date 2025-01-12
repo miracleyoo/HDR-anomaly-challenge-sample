@@ -62,4 +62,6 @@ def train(X, y, classifier_config="sgd"):
 
 # Get prediction scores (probability estimates)
 def get_scores(clf, X):
-    return clf.predict_proba(X)[:, 1]
+    res = clf.predict_proba(X)
+    print("Raw scores:", res)
+    return res[:, 1]

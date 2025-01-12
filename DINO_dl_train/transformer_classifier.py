@@ -28,7 +28,8 @@ class TransformerClassifier(nn.Module):
             nn.LayerNorm(input_dim*hidden_dim),
             nn.Linear(input_dim*hidden_dim, input_dim),
             nn.ReLU(),
-            nn.Linear(input_dim, num_classes)
+            nn.Linear(input_dim, num_classes),
+            # nn.Softmax(dim=-1)
         )
 
     def forward(self, x):
@@ -61,10 +62,12 @@ class MLPClassifier(nn.Module):
             nn.Linear(hidden_dim, hidden_dim),
             # nn.BatchNorm1d(hidden_dim),
             nn.ReLU(),
-            nn.Linear(hidden_dim, num_classes)
+            nn.Linear(hidden_dim, num_classes),
+            # nn.Softmax(dim=-1)
         )
             
     def forward(self, x):
         x = x.unsqueeze(1)  # 添加伪序列维度
         logits = self.classifier(x).squeeze(1)
+        print(logits)
         return logits

@@ -26,7 +26,7 @@ args.batch_size = 4
 args.input_dim = 1536
 args.num_classes = 2
 args.hidden_dim = 32
-args.num_epochs = 50
+args.num_epochs = 5#0
 args.lr = 1e-4
 args.cls_model_name = "mlp" #"transformer"
 time_str = time.strftime("%Y%m%d-%H%M%S")
@@ -94,7 +94,8 @@ def train_and_evaluate(tr_cls_dloader, val_cls_dloader, test_features, test_labe
     print(f"{args.cls_model_name}: Acc - {accuracy:.4f}, Hacc - {precision:.4f}, NHacc - {recall:.4f}, F1 - {f1:.4f}")
     
     # Get scores for the test dataset
-    eval_scores = evaluate(preds.numpy()[:,1], labels.numpy(), reversed=False)
+    preds = torch.softmax(preds, dim=-1)[:,1]
+    eval_scores = evaluate(preds.numpy(), labels.numpy(), reversed=False)
     print_evaluation(*eval_scores)
     csv_output.append([f"DiNO Features + {args.cls_model_name}"] + list(eval_scores))
     
