@@ -16,7 +16,7 @@ from copy import deepcopy
 def train(train_loader, test_loader, args):
     # Define the model
     if args.cls_model_name == "transformer":
-        model = TransformerClassifier(input_dim=args.input_dim, num_classes=args.num_classes)
+        model = TransformerClassifier(input_dim=args.input_dim, num_classes=args.num_classes, hidden_dim=args.hidden_dim)
     elif args.cls_model_name == "mlp":
         model = MLPClassifier(input_dim=args.input_dim, num_classes=args.num_classes)
     else:

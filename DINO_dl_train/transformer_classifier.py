@@ -5,13 +5,17 @@ from torch.utils.data import DataLoader, TensorDataset
 
 # 定义 Transformer Encoder 分类模型
 class TransformerClassifier(nn.Module):
-    def __init__(self, input_dim=1, num_classes=2, num_heads=8, num_layers=2, hidden_dim=32):
+    def __init__(self, input_dim=1536, num_classes=2, num_heads=8, num_layers=2, hidden_dim=32):
         super(TransformerClassifier, self).__init__()
-        # 位置编码（可选）
+        # Positional encoding
         self.position_embedding = nn.Parameter(torch.randn(1, input_dim, 1))  # 可学的位置编码
+        
+        # Input embedding
+        self.in_linear = nn.Linear(1, hidden_dim)
+        
         # Transformer Encoder
         encoder_layer = nn.TransformerEncoderLayer(
-            d_model=input_dim,
+            d_model=hidden_dim,
             nhead=num_heads,
             dim_feedforward=hidden_dim,
             activation='relu',
@@ -21,21 +25,28 @@ class TransformerClassifier(nn.Module):
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
         # 分类头
         self.classifier = nn.Sequential(
-            nn.LayerNorm(input_dim),
+            nn.LayerNorm(input_dim*hidden_dim),
+            nn.Linear(input_dim*hidden_dim, input_dim),
+            nn.ReLU(),
             nn.Linear(input_dim, num_classes)
         )
 
     def forward(self, x):
-        # 将输入 reshape 为 (B, L=1, D)
+        # 将输入 reshape 为 (B, D, L=1)
         x = x.unsqueeze(-1)  # 添加伪序列维度
         # 添加位置编码
         x = x + self.position_embedding
+        # Input embedding
+        x = self.in_linear(x)
+        
+        
         # print("Inside TransformerClassifier, x.shape (1):", x.shape)
         # Transformer Encoder
         x = self.transformer_encoder(x)
         # print("Inside TransformerClassifier, x.shape (2):", x.shape)
-        # 分类头（取特征的第一个时间步）
-        logits = self.classifier(x[:, :, 0])  # 假设 CLIP 特征是 batch x 1 x dim 的形状
+        # 分类头（取特征的全部时间步拼合）
+        x = x.view(x.size(0), -1)
+        logits = self.classifier(x)  # 假设 CLIP 特征是 batch x 1 x dim 的形状
         # print("Inside TransformerClassifier, logits.shape:", logits.shape)
         return logits
     
