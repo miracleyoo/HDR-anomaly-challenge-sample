@@ -23,6 +23,7 @@ args.device = "cuda:0"
 args.batch_size = 4
 args.input_dim = 1536
 args.num_classes = 2
+args.num_epochs = 50
 args.cls_model_name = "transformer"
 args.clf_save_dir = args.root_data_dir / f"trained_clfs_{args.cls_model_name}"
 os.makedirs(args.clf_save_dir, exist_ok=True)
