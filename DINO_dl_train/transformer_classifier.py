@@ -46,16 +46,13 @@ class TransformerClassifier(nn.Module):
 class MLPClassifier(nn.Module):
     def __init__(self, input_dim=1536, num_classes=2, hidden_dim=512):
         super(MLPClassifier, self).__init__()
-        # 3层 MLP (Linear -> BN -> ReLU)
+        # MLP (Linear -> BN -> ReLU)
         self.classifier = nn.Sequential(
             nn.Linear(input_dim, hidden_dim),
-            # nn.BatchNorm1d(hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, hidden_dim),
-            # nn.BatchNorm1d(hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, num_classes),
-            # nn.Softmax(dim=-1)
         )
             
     def forward(self, x):

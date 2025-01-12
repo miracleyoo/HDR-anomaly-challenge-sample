@@ -4,7 +4,6 @@ import argparse
 from pathlib import Path
 import time
 import torch
-import pickle 
 import numpy as np
 from torch.utils.data import DataLoader
 
@@ -12,10 +11,7 @@ from dataset import ButterflyDataset, ClassifierDataset
 from data_utils import data_transforms, load_data
 from evaluation import evaluate, print_evaluation
 from model_utils import get_feats_and_meta, get_dino_model
-from torchvision import transforms
-# from classifier import train, get_scores
 from dl_trainer import train, validate, calc_metrics
-from types import SimpleNamespace
 import yaml
 
 # Configuration         

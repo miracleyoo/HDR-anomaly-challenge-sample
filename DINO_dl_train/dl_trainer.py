@@ -1,15 +1,8 @@
 import torch
 import torch.nn as nn
-
-import numpy as np
-from tqdm import tqdm
-from transformers import AutoModel
 from sklearn.model_selection import train_test_split
 import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
 from transformer_classifier import TransformerClassifier, MLPClassifier
-# import accuracy calc class in torch
-from torchmetrics import Accuracy, Precision
 from copy import deepcopy
 from focal_loss import FocalLoss
 from evaluation import evaluate

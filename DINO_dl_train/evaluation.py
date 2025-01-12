@@ -23,11 +23,7 @@ def evaluate(scores, labels, reversed=False):
     """
     # preds, gt = scores, labels 
     preds, gt = evaluate_prediction(scores, labels, reversed)
-    # print("preds:", preds)
-    # print("gt:", gt)
-    # print("scores:", scores)
-    # print("labels:", labels)
-    
+
     if preds is None:
         return None  
     

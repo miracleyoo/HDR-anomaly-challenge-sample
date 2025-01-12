@@ -1,9 +1,6 @@
 from torch.utils.data import Dataset
 from PIL import Image
 import os
-import pandas as pd
-# Data augment
-
 
 class ButterflyDataset(Dataset):
     def __init__(self, data, root_dir, transforms=None):
