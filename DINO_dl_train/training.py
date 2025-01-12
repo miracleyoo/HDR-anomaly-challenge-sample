@@ -25,8 +25,8 @@ args.device = "cuda:0"
 args.batch_size = 4
 args.input_dim = 1536
 args.num_classes = 2
-args.hidden_dim = 32
-args.num_epochs = 5#0
+args.hidden_dim = 512
+args.num_epochs = 50
 args.lr = 1e-4
 args.cls_model_name = "mlp" #"transformer"
 time_str = time.strftime("%Y%m%d-%H%M%S")
@@ -60,10 +60,10 @@ def prepare_data_loaders(train_data, test_data):
     return tr_sig_dloader, test_dl
 
 def prepare_classifier_data_loaders(tr_features, tr_labels, test_features, test_labels):
-    print("tr_features.shape", tr_features.shape)
-    print("tr_labels.shape", tr_labels.shape)
-    print("test_features.shape", test_features.shape)
-    print("test_labels.shape", test_labels.shape)
+    # print("tr_features.shape", tr_features.shape)
+    # print("tr_labels.shape", tr_labels.shape)
+    # print("test_features.shape", test_features.shape)
+    # print("test_labels.shape", test_labels.shape)
     tr_cls_dataset = ClassifierDataset(tr_features, tr_labels)
     test_cls_dataset = ClassifierDataset(test_features, test_labels)
     tr_cls_dloader = DataLoader(tr_cls_dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)

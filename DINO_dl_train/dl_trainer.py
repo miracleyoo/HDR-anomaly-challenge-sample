@@ -11,6 +11,8 @@ from transformer_classifier import TransformerClassifier, MLPClassifier
 # import accuracy calc class in torch
 from torchmetrics import Accuracy, Precision
 from copy import deepcopy
+from focal_loss import FocalLoss
+from evaluation import evaluate
 
 # Train classifier with improvements
 def train(train_loader, test_loader, args):
@@ -18,14 +20,15 @@ def train(train_loader, test_loader, args):
     if args.cls_model_name == "transformer":
         model = TransformerClassifier(input_dim=args.input_dim, num_classes=args.num_classes, hidden_dim=args.hidden_dim)
     elif args.cls_model_name == "mlp":
-        model = MLPClassifier(input_dim=args.input_dim, num_classes=args.num_classes)
+        model = MLPClassifier(input_dim=args.input_dim, num_classes=args.num_classes, hidden_dim=args.hidden_dim)
     else:
         raise ValueError("Invalid cls_model_name")
     
     model.to(args.device)
 
-    class_weights = torch.tensor([1.0, 0.0457])  # 每类权重 (示例)
-    criterion = nn.CrossEntropyLoss(weight=class_weights)
+    class_weights = torch.tensor([0.0457,1.0])  # 每类权重 (示例)
+    # criterion = nn.CrossEntropyLoss(weight=class_weights)
+    criterion = FocalLoss(alpha=0.25, gamma=2, reduction='mean')
     criterion.to(args.device)
 
     # 优化器和学习率调度器
@@ -67,18 +70,21 @@ def train(train_loader, test_loader, args):
         
         # Evaluate the model
         val_preds, val_labels = validate(model, test_loader, args)
-        val_preds = torch.argmax(val_preds, dim=-1)
+        # val_preds = torch.argmax(val_preds, dim=-1)
         
-        val_accuracy, val_precision, val_recall, val_f1 = calc_metrics(val_preds, val_labels)
+        val_accuracy, val_precision, val_recall, val_f1 = calc_metrics(torch.argmax(val_preds, dim=-1), val_labels)
+        val_preds_for_hybrid = torch.softmax(val_preds, dim=-1)[:,1]
+        val_hybrid_recall,val_hybrid_precision,val_hybrid_f1,val_hybrid_roc_auc,val_hybrid_acc = evaluate(val_preds_for_hybrid.numpy(), val_labels.numpy(), reversed=False)
         
         print(f"Epoch {epoch + 1}/{args.num_epochs}, Loss: {epoch_loss / len(train_loader):.4f}")
         print(f"\tTrain: Acc - {train_accuracy:.4f}, Precision - {train_precision:.4f}, Recall - {train_recall:.4f}, F1 - {train_f1:.4f}")
         print(f"\tVal: Acc - {val_accuracy:.4f}, Precision - {val_precision:.4f}, Recall - {val_recall:.4f}, F1 - {val_f1:.4f}")
-        if val_f1 > best_f1:
-            best_f1 = val_f1
+        print(f"\tVal Hybrid: Recall - {val_hybrid_recall:.4f}, Precision - {val_hybrid_precision:.4f}, F1 - {val_hybrid_f1:.4f}, ROC AUC - {val_hybrid_roc_auc:.4f}, Acc - {val_hybrid_acc:.4f}")
+        if val_hybrid_f1 > best_f1:
+            best_f1 = val_hybrid_f1
             best_model = deepcopy(model)
             torch.save(best_model, args.clf_save_dir / f"trained_classifier_epoch_{epoch+1}.pth")
-            print(f"Best model updated! Saved model at epoch {epoch+1} with val f1 {val_f1:.4f}")
+            print(f"Best model updated! Saved model at epoch {epoch+1} with val f1 {val_hybrid_f1:.4f}")
         
     return best_model
 

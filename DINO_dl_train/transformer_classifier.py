@@ -69,5 +69,5 @@ class MLPClassifier(nn.Module):
     def forward(self, x):
         x = x.unsqueeze(1)  # 添加伪序列维度
         logits = self.classifier(x).squeeze(1)
-        print(logits)
+        # print(logits)
         return logits
