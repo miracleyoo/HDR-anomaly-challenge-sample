@@ -24,6 +24,7 @@ args.batch_size = 4
 args.input_dim = 1536
 args.num_classes = 2
 args.num_epochs = 50
+args.lr = 1e-4
 args.cls_model_name = "transformer"
 time_str = time.strftime("%Y%m%d-%H%M%S")
 args.clf_save_dir = args.root_data_dir / f"trained_clfs_{args.cls_model_name}_{time_str}"

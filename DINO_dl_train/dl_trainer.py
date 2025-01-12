@@ -29,7 +29,7 @@ def train(train_loader, test_loader, args):
     criterion.to(args.device)
 
     # 优化器和学习率调度器
-    optimizer = optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-4)
+    optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
     # precision_calc = Precision(task="binary", average='macro')
     best_f1 = 0.0
     best_model = None
