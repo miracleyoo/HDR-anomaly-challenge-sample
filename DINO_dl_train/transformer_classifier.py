@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader, TensorDataset
 
 # 定义 Transformer Encoder 分类模型
 class TransformerClassifier(nn.Module):
-    def __init__(self, input_dim=1536, num_classes=10, num_heads=8, num_layers=2, hidden_dim=512):
+    def __init__(self, input_dim=1536, num_classes=2, num_heads=8, num_layers=2, hidden_dim=512):
         super(TransformerClassifier, self).__init__()
         # 位置编码（可选）
         self.position_embedding = nn.Parameter(torch.randn(1, 1, input_dim))  # 可学的位置编码
@@ -36,4 +36,22 @@ class TransformerClassifier(nn.Module):
         # 分类头（取特征的第一个时间步）
         logits = self.classifier(x[:, 0, :])  # 假设 CLIP 特征是 batch x 1 x dim 的形状
         # print("Inside TransformerClassifier, logits.shape:", logits.shape)
+        return logits
+    
+class MLPClassifier(nn.Module):
+    def __init__(self, input_dim=1536, num_classes=2, hidden_dim=512):
+        super(MLPClassifier, self).__init__()
+        # 3层 MLP (Linear -> BN -> ReLU)
+        self.classifier = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.BatchNorm1d(hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.BatchNorm1d(hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, num_classes)
+        )
+            
+    def forward(self, x):
+        logits = self.classifier(x)
         return logits

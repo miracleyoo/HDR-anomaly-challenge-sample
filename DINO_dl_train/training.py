@@ -61,13 +61,13 @@ def extract_features(tr_sig_dloader, test_dl, model):
     return tr_features, tr_labels, test_features, test_labels
 
 
-def train_and_evaluate(tr_cls_dloader, test_cls_dloader, test_features, test_labels):
+def train_and_evaluate(tr_cls_dloader, val_cls_dloader, test_features, test_labels):
     # configs = ["svm","sgd","knn","gaussian","xgb"]
     csv_output = []
     score_output = []
 
-    model = train(tr_cls_dloader, args)
-    preds, labels = validate(model, test_cls_dloader, args)
+    model = train(tr_cls_dloader, val_cls_dloader, args)
+    preds, labels = validate(model, val_cls_dloader, args)
     accuracy, precision, recall, f1 = calc_metrics(preds, labels)
 
     # Save model to the specified path
