@@ -7,7 +7,7 @@ from transformers import AutoModel
 from sklearn.model_selection import train_test_split
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
-from transformer_classifier import TransformerClassifier
+from transformer_classifier import TransformerClassifier, MLPClassifier
 # import accuracy calc class in torch
 from torchmetrics import Accuracy, Precision
 
@@ -15,16 +15,16 @@ from torchmetrics import Accuracy, Precision
 # Train classifier with improvements
 def train(train_loader, test_loader, args):
     # Define the model
-    model = TransformerClassifier(input_dim=args.input_dim, num_classes=args.num_classes)
+    model = MLPClassifier(input_dim=args.input_dim, num_classes=args.num_classes)
     model.to(args.device)
 
     class_weights = torch.tensor([1.0, 0.1])  # 每类权重 (示例)
-    criterion = nn.CrossEntropyLoss(weight=class_weights)
+    criterion = nn.CrossEntropyLoss()#weight=class_weights)
     criterion.to(args.device)
 
     # 优化器和学习率调度器
     optimizer = optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
-    precision_calc = Precision(task="binary", average='macro')
+    # precision_calc = Precision(task="binary", average='macro')
     best_precision = 0.0
     best_model = None
 
@@ -95,8 +95,8 @@ def validate(model, test_loader, args):
         for x_test, label_test in test_loader:
             x_test, label_test = x_test.to(args.device), label_test.to(args.device)  # Move data to device
             outputs = model(x_test)  # Forward pass
-            predictions = torch.argmax(outputs, dim=-1)  # Get predicted class indices
-            all_predictions.append(predictions.cpu().detach())  # Move predictions to CPU and store
+            # predictions = torch.argmax(outputs, dim=-1)  # Get predicted class indices
+            all_predictions.append(outputs.cpu().detach())  # Move predictions to CPU and store
             all_labels.append(label_test.cpu().detach())  # Move labels to CPU and store
 
     # Concatenate all predictions and labels

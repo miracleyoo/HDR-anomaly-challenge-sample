@@ -10,6 +10,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.model_selection import train_test_split
+from xgboost import XGBClassifier
 
 # Train classifier with improvements
 def train(X, y, classifier_config="sgd"):
@@ -38,6 +39,8 @@ def train(X, y, classifier_config="sgd"):
         clf = KNeighborsClassifier(n_neighbors=5)  # Increased k value for better generalization
     elif classifier_config == "gaussian":
         clf = GaussianProcessClassifier(random_state=0)
+    elif classifier_config == "xgb":
+        clf = XGBClassifier(use_label_encoder=False, eval_metric='logloss', scale_pos_weight=hybrid_weight/non_hybrid_weight)
     else:
         raise ValueError("Invalid classifier_config")
 

@@ -44,14 +44,15 @@ class MLPClassifier(nn.Module):
         # 3层 MLP (Linear -> BN -> ReLU)
         self.classifier = nn.Sequential(
             nn.Linear(input_dim, hidden_dim),
-            nn.BatchNorm1d(hidden_dim),
+            # nn.BatchNorm1d(hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, hidden_dim),
-            nn.BatchNorm1d(hidden_dim),
+            # nn.BatchNorm1d(hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, num_classes)
         )
             
     def forward(self, x):
-        logits = self.classifier(x)
+        x = x.unsqueeze(1)  # 添加伪序列维度
+        logits = self.classifier(x).squeeze(1)
         return logits
