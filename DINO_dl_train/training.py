@@ -28,7 +28,7 @@ args.num_classes = 2
 args.hidden_dim = 32
 args.num_epochs = 50
 args.lr = 1e-4
-args.cls_model_name = "transformer"
+args.cls_model_name = "mlp" #"transformer"
 time_str = time.strftime("%Y%m%d-%H%M%S")
 args.clf_save_dir = args.root_data_dir / f"trained_clfs_{args.cls_model_name}_{time_str}"
 os.makedirs(args.clf_save_dir, exist_ok=True)
@@ -84,7 +84,7 @@ def train_and_evaluate(tr_cls_dloader, val_cls_dloader, test_features, test_labe
 
     model = train(tr_cls_dloader, val_cls_dloader, args)
     preds, labels = validate(model, val_cls_dloader, args)
-    accuracy, precision, recall, f1 = calc_metrics(preds, labels)
+    accuracy, precision, recall, f1 = calc_metrics(torch.argmax(preds, dim=-1), labels)
 
     # Save model to the specified path
     model_filename = args.clf_save_dir / f"best_classifier.pth"
@@ -94,7 +94,7 @@ def train_and_evaluate(tr_cls_dloader, val_cls_dloader, test_features, test_labe
     print(f"{args.cls_model_name}: Acc - {accuracy:.4f}, Hacc - {precision:.4f}, NHacc - {recall:.4f}, F1 - {f1:.4f}")
     
     # Get scores for the test dataset
-    eval_scores = evaluate(preds.numpy(), labels.numpy(), reversed=False)
+    eval_scores = evaluate(preds.numpy()[:,1], labels.numpy(), reversed=False)
     print_evaluation(*eval_scores)
     csv_output.append([f"DiNO Features + {args.cls_model_name}"] + list(eval_scores))
     

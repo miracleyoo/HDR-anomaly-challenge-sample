@@ -32,7 +32,7 @@ def train(train_loader, test_loader, args):
     optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
     # precision_calc = Precision(task="binary", average='macro')
     best_f1 = 0.0
-    best_model = None
+    best_model = deepcopy(model)
 
     non_hybrid_weight = 1
     hybrid_weight = 1
@@ -49,12 +49,7 @@ def train(train_loader, test_loader, args):
             optimizer.zero_grad()
             batch_features, batch_labels = batch_features.to(args.device), batch_labels.to(args.device)
             outputs = model(batch_features)
-            # print("batch_features.shape:", batch_features.shape)
-            # print("outputs.shape:", outputs.shape)
-            # print("batch_labels.shape:", batch_labels.shape)
-            # print("outputs device:", outputs.device)
-            # print("batch_labels device:", batch_labels.device)
-            
+
             loss = criterion(outputs, batch_labels)
             loss.backward()
             optimizer.step()
@@ -66,17 +61,13 @@ def train(train_loader, test_loader, args):
         
         # Calculate precision
         train_preds_all = torch.cat(train_preds_all)
-        # print("train_preds_all.shape(before):", train_preds_all.shape)
         train_preds_all = torch.argmax(train_preds_all, dim=-1)
         train_labels_all = torch.cat(train_labels_all)
         train_accuracy, train_precision, train_recall, train_f1 = calc_metrics(train_preds_all, train_labels_all)
-        # print("train_preds_all.shape(after):", train_preds_all.shape)
-        # print("train_labels_all.shape:", train_labels_all.shape)
         
         # Evaluate the model
         val_preds, val_labels = validate(model, test_loader, args)
-        # print(val_preds)
-        # print(val_labels)
+        val_preds = torch.argmax(val_preds, dim=-1)
         
         val_accuracy, val_precision, val_recall, val_f1 = calc_metrics(val_preds, val_labels)
         
@@ -112,7 +103,7 @@ def validate(model, test_loader, args):
     # print("preds_val.shape(before):", preds.shape)
     # print("y_val.shape:", y_val.shape)
     # Turn the binary labels into a numpy array (B,2) to (B,)
-    preds = torch.argmax(preds, dim=-1)
+    # preds = torch.argmax(preds, dim=-1)
     # print("preds_val.shape(after):", preds.shape)
     return preds, y_val
 
