@@ -1,7 +1,7 @@
 import os
 import csv
 from pathlib import Path
-
+import time
 import torch
 import pickle 
 from torch.utils.data import DataLoader
@@ -25,7 +25,8 @@ args.input_dim = 1536
 args.num_classes = 2
 args.num_epochs = 50
 args.cls_model_name = "transformer"
-args.clf_save_dir = args.root_data_dir / f"trained_clfs_{args.cls_model_name}"
+time_str = time.strftime("%Y%m%d-%H%M%S")
+args.clf_save_dir = args.root_data_dir / f"trained_clfs_{args.cls_model_name}_{time_str}"
 os.makedirs(args.clf_save_dir, exist_ok=True)
 
 
@@ -72,7 +73,7 @@ def train_and_evaluate(tr_cls_dloader, val_cls_dloader, test_features, test_labe
     accuracy, precision, recall, f1 = calc_metrics(preds, labels)
 
     # Save model to the specified path
-    model_filename = args.clf_save_dir / f"trained_{args.cls_model_name}_classifier.pth"
+    model_filename = args.clf_save_dir / f"best_classifier.pth"
     torch.save(model, model_filename)
     
     print(f"Saved {args.cls_model_name} classifier to {model_filename}")

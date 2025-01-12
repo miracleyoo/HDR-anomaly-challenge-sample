@@ -15,7 +15,13 @@ from copy import deepcopy
 # Train classifier with improvements
 def train(train_loader, test_loader, args):
     # Define the model
-    model = MLPClassifier(input_dim=args.input_dim, num_classes=args.num_classes)
+    if args.cls_model_name == "transformer":
+        model = TransformerClassifier(input_dim=args.input_dim, num_classes=args.num_classes)
+    elif args.cls_model_name == "mlp":
+        model = MLPClassifier(input_dim=args.input_dim, num_classes=args.num_classes)
+    else:
+        raise ValueError("Invalid cls_model_name")
+    
     model.to(args.device)
 
     class_weights = torch.tensor([1.0, 0.1])  # 每类权重 (示例)
@@ -74,13 +80,13 @@ def train(train_loader, test_loader, args):
         
         val_accuracy, val_precision, val_recall, val_f1 = calc_metrics(val_preds, val_labels)
         
-        print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {epoch_loss / len(train_loader):.4f}")
+        print(f"Epoch {epoch + 1}/{args.num_epochs}, Loss: {epoch_loss / len(train_loader):.4f}")
         print(f"\tTrain: Acc - {train_accuracy:.4f}, Precision - {train_precision:.4f}, Recall - {train_recall:.4f}, F1 - {train_f1:.4f}")
         print(f"\tVal: Acc - {val_accuracy:.4f}, Precision - {val_precision:.4f}, Recall - {val_recall:.4f}, F1 - {val_f1:.4f}")
         if val_f1 > best_f1:
             best_f1 = val_f1
             best_model = deepcopy(model)
-            torch.save(best_model, args.clf_save_dir / f"trained_{args.cls_model_name}_classifier_epoch_{epoch+1}.pth")
+            torch.save(best_model, args.clf_save_dir / f"trained_classifier_epoch_{epoch+1}.pth")
             print(f"Best model updated! Saved model at epoch {epoch+1} with val f1 {val_f1:.4f}")
         
     return best_model
