@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from tqdm import tqdm
 from transformers import AutoModel
-
+ 
 def get_dino_model(dino_name='facebook/dinov2-base'):
     model = AutoModel.from_pretrained(dino_name)
     model.eval()  
